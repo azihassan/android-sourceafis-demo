@@ -2,6 +2,7 @@
 package com.machinezoo.sourceafis;
 
 import java.util.*;
+import java8.util.Optional;
 import gnu.trove.map.hash.*;
 
 /**
@@ -41,7 +42,7 @@ public class FingerprintMatcher {
 	 * @see FingerprintTransparency
 	 */
 	public FingerprintMatcher transparency(FingerprintTransparency transparency) {
-		this.transparency = java8.util.Optional.ofNullable(transparency).orElse(FingerprintTransparency.none);
+		this.transparency = Optional.ofNullable(transparency).orElse(FingerprintTransparency.none);
 		return this;
 	}
 	/**
@@ -75,6 +76,7 @@ public class FingerprintMatcher {
 						list.add(edge);
 					}
 				}
+		// https://sourceafis.machinezoo.com/transparency/edge-hash
 		transparency.logEdgeHash(map);
 		return map;
 	}
@@ -82,11 +84,11 @@ public class FingerprintMatcher {
 		int minLengthBin = (edge.length - Parameters.maxDistanceError) / Parameters.maxDistanceError;
 		int maxLengthBin = (edge.length + Parameters.maxDistanceError) / Parameters.maxDistanceError;
 		int angleBins = (int)Math.ceil(2 * Math.PI / Parameters.maxAngleError);
-		int minReferenceBin = (int)(Angle.difference(edge.referenceAngle, Parameters.maxAngleError) / Parameters.maxAngleError);
-		int maxReferenceBin = (int)(Angle.add(edge.referenceAngle, Parameters.maxAngleError) / Parameters.maxAngleError);
+		int minReferenceBin = (int)(DoubleAngle.difference(edge.referenceAngle, Parameters.maxAngleError) / Parameters.maxAngleError);
+		int maxReferenceBin = (int)(DoubleAngle.add(edge.referenceAngle, Parameters.maxAngleError) / Parameters.maxAngleError);
 		int endReferenceBin = (maxReferenceBin + 1) % angleBins;
-		int minNeighborBin = (int)(Angle.difference(edge.neighborAngle, Parameters.maxAngleError) / Parameters.maxAngleError);
-		int maxNeighborBin = (int)(Angle.add(edge.neighborAngle, Parameters.maxAngleError) / Parameters.maxAngleError);
+		int minNeighborBin = (int)(DoubleAngle.difference(edge.neighborAngle, Parameters.maxAngleError) / Parameters.maxAngleError);
+		int maxNeighborBin = (int)(DoubleAngle.add(edge.neighborAngle, Parameters.maxAngleError) / Parameters.maxAngleError);
 		int endNeighborBin = (maxNeighborBin + 1) % angleBins;
 		List<Integer> coverage = new ArrayList<>();
 		for (int lengthBin = minLengthBin; lengthBin <= maxLengthBin; ++lengthBin)

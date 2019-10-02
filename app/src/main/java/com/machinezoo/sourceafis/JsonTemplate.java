@@ -1,11 +1,9 @@
 // Part of SourceAFIS: https://sourceafis.machinezoo.com
 package com.machinezoo.sourceafis;
 
-import java8.util.J8Arrays;
-import java8.util.function.Function;
-
 import java.util.*;
-import java8.util.function.IntFunction;
+import java8.util.Objects;
+import java8.util.J8Arrays;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 
@@ -13,31 +11,25 @@ class JsonTemplate {
 	int width;
 	int height;
 	List<JsonMinutia> minutiae;
-	JsonTemplate(Cell size, Minutia[] minutiae) {
+	JsonTemplate(IntPoint size, ImmutableMinutia[] minutiae) {
 		width = size.x;
 		height = size.y;
-		this.minutiae = J8Arrays.stream(minutiae).map(new Function<Minutia, JsonMinutia>() {
-			@Override
-			public JsonMinutia apply(Minutia minutia) {
-				return new JsonMinutia(minutia);
-			}
-		}).collect(Collectors.<JsonMinutia>toList());
-		//}).collect(toList());
+		this.minutiae = J8Arrays.stream(minutiae).map(JsonMinutia::new).collect(Collectors.toList());
 	}
-	Cell size() {
-		return new Cell(width, height);
+	IntPoint size() {
+		return new IntPoint(width, height);
 	}
-	Minutia[] minutiae() {
-		return StreamSupport.stream(minutiae).map(new Function<JsonMinutia, Object>() {
-			@Override
-			public Object apply(JsonMinutia json) {
-				return new Minutia(json);
-			}
-		}).toArray(new IntFunction<Minutia[]>() {
-			@Override
-			public Minutia[] apply(int n) {
-				return new Minutia[n];
-			}
-		});
+	ImmutableMinutia[] minutiae() {
+		return StreamSupport.stream(minutiae).map(ImmutableMinutia::new).toArray(n -> new ImmutableMinutia[n]);
+	}
+	void validate() {
+		/*
+		 * Width and height are informative only. Don't validate them.
+		 */
+		Objects.requireNonNull(minutiae, "Null minutia array.");
+		for (JsonMinutia minutia : minutiae) {
+			Objects.requireNonNull(minutia, "Null minutia.");
+			minutia.validate();
+		}
 	}
 }

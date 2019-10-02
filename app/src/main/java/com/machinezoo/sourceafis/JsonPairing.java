@@ -1,10 +1,7 @@
 // Part of SourceAFIS: https://sourceafis.machinezoo.com
 package com.machinezoo.sourceafis;
 
-import java8.util.J8Arrays;
-import java8.util.function.Function;
-import java8.util.stream.Collectors;
-
+import static java.util.stream.Collectors.*;
 import java.util.*;
 
 class JsonPairing {
@@ -13,12 +10,7 @@ class JsonPairing {
 	List<JsonEdge> support;
 	JsonPairing(int count, MinutiaPair[] pairs, List<JsonEdge> supporting) {
 		root = new JsonPair(pairs[0].probe, pairs[0].candidate);
-		tree = J8Arrays.stream(pairs).limit(count).skip(1).map(new Function<MinutiaPair, JsonEdge>() {
-			@Override
-			public JsonEdge apply(MinutiaPair pair) {
-				return new JsonEdge(pair);
-			}
-		}).collect(Collectors.<JsonEdge>toList());
+		tree = Arrays.stream(pairs).limit(count).skip(1).map(JsonEdge::new).collect(toList());
 		support = supporting;
 	}
 }

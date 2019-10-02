@@ -32,7 +32,7 @@ class CircularList<T> implements List<T> {
 	}
 	@Override public boolean contains(Object item) {
 		for (int i = 0; i < size(); ++i)
-			if (java8.util.Objects.equals(get(i), item))
+			if (Objects.equals(get(i), item))
 				return true;
 		return false;
 	}
@@ -49,7 +49,7 @@ class CircularList<T> implements List<T> {
 		if (size() != other.size())
 			return false;
 		for (int i = 0; i < size(); ++i)
-			if (!java8.util.Objects.equals(get(i), other.get(i)))
+			if (!Objects.equals(get(i), other.get(i)))
 				return false;
 		return true;
 	}
@@ -59,12 +59,12 @@ class CircularList<T> implements List<T> {
 	@Override public int hashCode() {
 		int hash = 1;
 		for (int i = 0; i < size(); ++i)
-			hash = 31 * hash + java8.util.Objects.hashCode(inner.get(i));
+			hash = 31 * hash + Objects.hashCode(inner.get(i));
 		return hash;
 	}
 	@Override public int indexOf(Object item) {
 		for (int i = 0; i < size(); ++i)
-			if (java8.util.Objects.equals(get(i), item))
+			if (Objects.equals(get(i), item))
 				return i;
 		return -1;
 	}
@@ -76,7 +76,7 @@ class CircularList<T> implements List<T> {
 	}
 	@Override public int lastIndexOf(Object item) {
 		for (int i = size() - 1; i >= 0; --i)
-			if (java8.util.Objects.equals(get(i), item))
+			if (Objects.equals(get(i), item))
 				return i;
 		return -1;
 	}
@@ -143,7 +143,7 @@ class CircularList<T> implements List<T> {
 		for (int i = 0; i < inner.size; ++i) {
 			if (i > 0)
 				s.append(", ");
-			s.append(java8.util.Objects.toString(inner.get(i)));
+			s.append(Objects.toString(inner.get(i)));
 		}
 		s.append("]");
 		return s.toString();

@@ -151,12 +151,11 @@ class ImageHolderViewModel : ViewModel() {
 }
 
 class CustomLogger : FingerprintTransparency() {
-    override fun log(keyword: String?, data: MutableMap<String, Supplier<ByteBuffer>>?) {
+    override fun log(keyword: String?, data: MutableMap<String, java.util.function.Supplier<ByteBuffer>>?) {
         if(keyword != null) {
             Log.i("SourceAFIS", keyword)
         }
     }
-
 }
 
 /*class ModifiedFingerprintTemplate(image: ByteArray) : FingerprintTemplate() {

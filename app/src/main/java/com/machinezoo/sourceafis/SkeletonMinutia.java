@@ -3,14 +3,13 @@ package com.machinezoo.sourceafis;
 
 import java.nio.*;
 import java.util.*;
-import java8.util.function.Predicate;
-import java8.util.function.ToIntFunction;
+
 import java8.util.stream.StreamSupport;
 
 class SkeletonMinutia {
-	final Cell position;
+	final IntPoint position;
 	final List<SkeletonRidge> ridges = new ArrayList<>();
-	SkeletonMinutia(Cell position) {
+	SkeletonMinutia(IntPoint position) {
 		this.position = position;
 	}
 	void attachStart(SkeletonRidge ridge) {
@@ -32,17 +31,7 @@ class SkeletonMinutia {
 				ridge.write(buffer);
 	}
 	int serializedSize() {
-		return StreamSupport.stream(ridges).filter(new Predicate<SkeletonRidge>() {
-			@Override
-			public boolean test(SkeletonRidge r) {
-				return r.points instanceof CircularList;
-			}
-		}).mapToInt(new ToIntFunction<SkeletonRidge>() {
-			@Override
-			public int applyAsInt(SkeletonRidge r) {
-				return r.serializedSize();
-			}
-		}).sum();
+		return StreamSupport.stream(ridges).filter(r -> r.points instanceof CircularList).mapToInt(r -> r.serializedSize()).sum();
 	}
 	@Override public String toString() {
 		return String.format("%s*%d", position.toString(), ridges.size());

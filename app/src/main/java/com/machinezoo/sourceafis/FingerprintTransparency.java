@@ -15,8 +15,8 @@ import gnu.trove.map.hash.*;
  * on SourceAFIS website for more information and a tutorial on how to use this class.
  * <p>
  * Applications can subclass {@code FingerprintTransparency} and override
- * {#log(String, Map)} method to define new transparency data logger.
- * One default implementation of {@code FingerprintTransparency} is returned by {#zip(OutputStream)} method.
+ * {@link #log(String, Map)} method to define new transparency data logger.
+ * One default implementation of {@code FingerprintTransparency} is returned by {@link #zip(OutputStream)} method.
  * <p>
  * An instance of {@code FingerprintTransparency} must be passed to
  * {@link FingerprintTemplate#transparency(FingerprintTransparency)} or {@link FingerprintMatcher#transparency(FingerprintTransparency)}
@@ -29,10 +29,7 @@ import gnu.trove.map.hash.*;
  * @see FingerprintTemplate#transparency(FingerprintTransparency)
  * @see FingerprintMatcher#transparency(FingerprintTransparency)
  */
-interface AutoCloseable {
-	void close();
-}
-public abstract class FingerprintTransparency implements AutoCloseable {
+public abstract class FingerprintTransparency {
 	private List<JsonEdge> supportingEdges = new ArrayList<>();
 	static final FingerprintTransparency none = new FingerprintTransparency() {
 		@Override protected void log(String name, Map<String, Supplier<ByteBuffer>> data) {
@@ -78,7 +75,7 @@ public abstract class FingerprintTransparency implements AutoCloseable {
 	 * Subclasses can override this method to perform cleanup.
 	 * Default implementation of this method is empty.
 	 */
-	@Override public void close() {
+	public void close() {
 	}
 	/**
 	 * Write all transparency data to a ZIP file.
@@ -103,264 +100,198 @@ public abstract class FingerprintTransparency implements AutoCloseable {
 	boolean logging() {
 		return this != none;
 	}
+	// https://sourceafis.machinezoo.com/transparency/decoded-image
 	void logDecodedImage(DoubleMap image) {
 		logDoubleMap("decoded-image", image);
 	}
+	// https://sourceafis.machinezoo.com/transparency/scaled-image
 	void logScaledImage(DoubleMap image) {
 		logDoubleMap("scaled-image", image);
 	}
-	void logBlockMap(final BlockMap blocks) {
-		log("block-map", ".json", json(new Supplier<Object>() {
-			@Override
-			public Object get() {
-				return blocks;
-			}
-		}));
+	// https://sourceafis.machinezoo.com/transparency/block-map
+	void logBlockMap(BlockMap blocks) {
+		log("block-map", ".json", json(() -> blocks));
 	}
-	void logHistogram(Histogram histogram) {
+	// https://sourceafis.machinezoo.com/transparency/histogram
+	void logHistogram(HistogramMap histogram) {
 		logHistogram("histogram", histogram);
 	}
-	void logSmoothedHistogram(Histogram histogram) {
+	// https://sourceafis.machinezoo.com/transparency/smoothed-histogram
+	void logSmoothedHistogram(HistogramMap histogram) {
 		logHistogram("smoothed-histogram", histogram);
 	}
+	// https://sourceafis.machinezoo.com/transparency/clipped-contrast
 	void logClippedContrast(DoubleMap contrast) {
 		logDoubleMap("clipped-contrast", contrast);
 	}
+	// https://sourceafis.machinezoo.com/transparency/absolute-contrast-mask
 	void logAbsoluteContrastMask(BooleanMap mask) {
 		logBooleanMap("absolute-contrast-mask", mask);
 	}
+	// https://sourceafis.machinezoo.com/transparency/relative-contrast-mask
 	void logRelativeContrastMask(BooleanMap mask) {
 		logBooleanMap("relative-contrast-mask", mask);
 	}
+	// https://sourceafis.machinezoo.com/transparency/combined-mask
 	void logCombinedMask(BooleanMap mask) {
 		logBooleanMap("combined-mask", mask);
 	}
+	// https://sourceafis.machinezoo.com/transparency/filtered-mask
 	void logFilteredMask(BooleanMap mask) {
 		logBooleanMap("filtered-mask", mask);
 	}
+	// https://sourceafis.machinezoo.com/transparency/equalized-image
 	void logEqualizedImage(DoubleMap image) {
 		logDoubleMap("equalized-image", image);
 	}
-	void logPixelwiseOrientation(PointMap orientations) {
+	// https://sourceafis.machinezoo.com/transparency/pixelwise-orientation
+	void logPixelwiseOrientation(DoublePointMap orientations) {
 		logPointMap("pixelwise-orientation", orientations);
 	}
-	void logBlockOrientation(PointMap orientations) {
+	// https://sourceafis.machinezoo.com/transparency/block-orientation
+	void logBlockOrientation(DoublePointMap orientations) {
 		logPointMap("block-orientation", orientations);
 	}
-	void logSmoothedOrientation(PointMap orientations) {
+	// https://sourceafis.machinezoo.com/transparency/smoothed-orientation
+	void logSmoothedOrientation(DoublePointMap orientations) {
 		logPointMap("smoothed-orientation", orientations);
 	}
+	// https://sourceafis.machinezoo.com/transparency/parallel-smoothing
 	void logParallelSmoothing(DoubleMap smoothed) {
 		logDoubleMap("parallel-smoothing", smoothed);
 	}
+	// https://sourceafis.machinezoo.com/transparency/orthogonal-smoothing
 	void logOrthogonalSmoothing(DoubleMap smoothed) {
 		logDoubleMap("orthogonal-smoothing", smoothed);
 	}
+	// https://sourceafis.machinezoo.com/transparency/binarized-image
 	void logBinarizedImage(BooleanMap image) {
 		logBooleanMap("binarized-image", image);
 	}
+	// https://sourceafis.machinezoo.com/transparency/filtered-binary-image
 	void logFilteredBinarydImage(BooleanMap image) {
 		logBooleanMap("filtered-binary-image", image);
 	}
+	// https://sourceafis.machinezoo.com/transparency/pixel-mask
 	void logPixelMask(BooleanMap image) {
 		logBooleanMap("pixel-mask", image);
 	}
+	// https://sourceafis.machinezoo.com/transparency/inner-mask
 	void logInnerMask(BooleanMap image) {
 		logBooleanMap("inner-mask", image);
 	}
+	// https://sourceafis.machinezoo.com/transparency/binarized-skeleton
 	void logBinarizedSkeleton(SkeletonType type, BooleanMap image) {
 		logBooleanMap(type.prefix + "binarized-skeleton", image);
 	}
+	// https://sourceafis.machinezoo.com/transparency/thinned-skeleton
 	void logThinnedSkeleton(SkeletonType type, BooleanMap image) {
 		logBooleanMap(type.prefix + "thinned-skeleton", image);
 	}
+	// https://sourceafis.machinezoo.com/transparency/traced-skeleton
 	void logTracedSkeleton(Skeleton skeleton) {
 		logSkeleton("traced-skeleton", skeleton);
 	}
+	// https://sourceafis.machinezoo.com/transparency/removed-dots
 	void logRemovedDots(Skeleton skeleton) {
 		logSkeleton("removed-dots", skeleton);
 	}
+	// https://sourceafis.machinezoo.com/transparency/removed-pores
 	void logRemovedPores(Skeleton skeleton) {
 		logSkeleton("removed-pores", skeleton);
 	}
+	// https://sourceafis.machinezoo.com/transparency/removed-gaps
 	void logRemovedGaps(Skeleton skeleton) {
 		logSkeleton("removed-gaps", skeleton);
 	}
+	// https://sourceafis.machinezoo.com/transparency/removed-tails
 	void logRemovedTails(Skeleton skeleton) {
 		logSkeleton("removed-tails", skeleton);
 	}
+	// https://sourceafis.machinezoo.com/transparency/removed-fragments
 	void logRemovedFragments(Skeleton skeleton) {
 		logSkeleton("removed-fragments", skeleton);
 	}
+	// https://sourceafis.machinezoo.com/transparency/skeleton-minutiae
 	void logSkeletonMinutiae(TemplateBuilder template) {
 		logMinutiae("skeleton-minutiae", template);
 	}
+	// https://sourceafis.machinezoo.com/transparency/inner-minutiae
 	void logInnerMinutiae(TemplateBuilder template) {
 		logMinutiae("inner-minutiae", template);
 	}
+	// https://sourceafis.machinezoo.com/transparency/removed-minutia-clouds
 	void logRemovedMinutiaClouds(TemplateBuilder template) {
 		logMinutiae("removed-minutia-clouds", template);
 	}
+	// https://sourceafis.machinezoo.com/transparency/top-minutiae
 	void logTopMinutiae(TemplateBuilder template) {
 		logMinutiae("top-minutiae", template);
 	}
+	// https://sourceafis.machinezoo.com/transparency/shuffled-minutiae
 	void logShuffledMinutiae(TemplateBuilder template) {
 		logMinutiae("shuffled-minutiae", template);
 	}
-	void logEdgeTable(final NeighborEdge[][] table) {
-		log("edge-table", ".json", json(new Supplier<Object>() {
-			@Override
-			public Object get() {
-				return table;
-			}
-		}));
+	// https://sourceafis.machinezoo.com/transparency/edge-table
+	void logEdgeTable(NeighborEdge[][] table) {
+		log("edge-table", ".json", json(() -> table));
 	}
+	// https://sourceafis.machinezoo.com/transparency/deserialized-minutiae
 	void logDeserializedMinutiae(TemplateBuilder template) {
 		logMinutiae("deserialized-minutiae", template);
 	}
-	void logIsoMetadata(final int width, final int height, final int cmPixelsX, final int cmPixelsY) {
+	// https://sourceafis.machinezoo.com/transparency/edge-hash
+	void logEdgeHash(TIntObjectHashMap<List<IndexedEdge>> edgeHash) {
+		log("edge-hash", ".dat", () -> IndexedEdge.serialize(edgeHash));
+	}
+	// https://sourceafis.machinezoo.com/transparency/root-pairs
+	void logRootPairs(int count, MinutiaPair[] roots) {
 		if (logging())
-			log("iso-metadata", ".json", json(new Supplier<Object>() {
-				@Override
-				public Object get() {
-					return new JsonIsoMetadata(width, height, cmPixelsX, cmPixelsY);
-				}
-			}));
+			log("root-pairs", ".json", json(() -> JsonPair.roots(count, roots)));
 	}
-	void logIsoMinutiae(TemplateBuilder template) {
-		logMinutiae("iso-minutiae", template);
-	}
-	void logEdgeHash(final TIntObjectHashMap<List<IndexedEdge>> edgeHash) {
-		log("edge-hash", ".dat", new Supplier<ByteBuffer>() {
-			@Override
-			public ByteBuffer get() {
-				return IndexedEdge.serialize(edgeHash);
-			}
-		});
-	}
-	void logRootPairs(final int count, final MinutiaPair[] roots) {
-		if (logging())
-			log("root-pairs", ".json", json(new Supplier<Object>() {
-				@Override
-				public Object get() {
-					return JsonPair.roots(count, roots);
-				}
-			}));
-	}
+	// Accumulated and then added to https://sourceafis.machinezoo.com/transparency/pairing
 	void logSupportingEdge(MinutiaPair pair) {
 		if (logging())
 			supportingEdges.add(new JsonEdge(pair));
 	}
-	void logPairing(final int count, final MinutiaPair[] pairs) {
+	// https://sourceafis.machinezoo.com/transparency/pairing
+	void logPairing(int count, MinutiaPair[] pairs) {
 		if (logging()) {
-			log("pairing", ".json", json(new Supplier<Object>() {
-				@Override
-				public Object get() {
-					return new JsonPairing(count, pairs, supportingEdges);
-				}
-			}));
+			log("pairing", ".json", json(() -> new JsonPairing(count, pairs, supportingEdges)));
 			supportingEdges.clear();
 		}
 	}
-	void logScore(final Score score) {
+	// https://sourceafis.machinezoo.com/transparency/score
+	void logScore(Score score) {
 		if (logging())
-			log("score", ".json", json(new Supplier<Object>() {
-				@Override
-				public Object get() {
-					return score;
-				}
-			}));
+			log("score", ".json", json(() -> score));
 	}
-	void logBestMatch(final int nth) {
+	// https://sourceafis.machinezoo.com/transparency/best-match
+	void logBestMatch(int nth) {
 		if (logging())
-			log("best-match", ".json", json(new Supplier<Object>() {
-				@Override
-				public Object get() {
-					return new JsonBestMatch(nth);
-				}
-			}));
+			log("best-match", ".json", json(() -> new JsonBestMatch(nth)));
 	}
-	private void logSkeleton(String name, final Skeleton skeleton) {
-		log(skeleton.type.prefix + name, ".json", json(new Supplier<Object>() {
-			@Override
-			public Object get() {
-				return new JsonSkeleton(skeleton);
-			}
-		}), ".dat", new Supplier<ByteBuffer>() {
-			@Override
-			public ByteBuffer get() {
-				return skeleton.serialize();
-			}
-		});
+	private void logSkeleton(String name, Skeleton skeleton) {
+		log(skeleton.type.prefix + name, ".json", json(() -> new JsonSkeleton(skeleton)), ".dat", skeleton::serialize);
 	}
-	private void logMinutiae(String name, final TemplateBuilder template) {
+	private void logMinutiae(String name, TemplateBuilder template) {
 		if (logging())
-			log(name, ".json", json(new Supplier<Object>() {
-				@Override
-				public Object get() {
-					return new JsonTemplate(template.size, template.minutiae);
-				}
-			}));
+			log(name, ".json", json(() -> new JsonTemplate(template.size, template.minutiae)));
 	}
-	private void logHistogram(String name, final Histogram histogram) {
-		log(name, ".dat", new Supplier<ByteBuffer>() {
-			@Override
-			public ByteBuffer get() {
-				return histogram.serialize();
-			}
-		}, ".json", json(new Supplier<Object>() {
-			@Override
-			public Object get() {
-				return histogram.json();
-			}
-		}));
+	private void logHistogram(String name, HistogramMap histogram) {
+		log(name, ".dat", histogram::serialize, ".json", json(histogram::json));
 	}
-	private void logPointMap(String name, final PointMap map) {
-		log(name, ".dat", new Supplier<ByteBuffer>() {
-			@Override
-			public ByteBuffer get() {
-				return map.serialize();
-			}
-		}, ".json", json(new Supplier<Object>() {
-			@Override
-			public Object get() {
-				return map.json();
-			}
-		}));
+	private void logPointMap(String name, DoublePointMap map) {
+		log(name, ".dat", map::serialize, ".json", json(map::json));
 	}
-	private void logDoubleMap(String name, final DoubleMap map) {
-		log(name, ".dat", new Supplier<ByteBuffer>() {
-			@Override
-			public ByteBuffer get() {
-				return map.serialize();
-			}
-		}, ".json", json(new Supplier<Object>() {
-			@Override
-			public Object get() {
-				return map.json();
-			}
-		}));
+	private void logDoubleMap(String name, DoubleMap map) {
+		log(name, ".dat", map::serialize, ".json", json(map::json));
 	}
-	private void logBooleanMap(String name, final BooleanMap map) {
-		log(name, ".dat", new Supplier<ByteBuffer>() {
-			@Override
-			public ByteBuffer get() {
-				return map.serialize();
-			}
-		}, ".json", json(new Supplier<Object>() {
-			@Override
-			public Object get() {
-				return map.json();
-			}
-		}));
+	private void logBooleanMap(String name, BooleanMap map) {
+		log(name, ".dat", map::serialize, ".json", json(map::json));
 	}
-	private Supplier<ByteBuffer> json(final Supplier<Object> supplier) {
-		return new Supplier<ByteBuffer>() {
-			@Override
-			public ByteBuffer get() {
-				return ByteBuffer.wrap(new GsonBuilder().setPrettyPrinting().create().toJson(supplier.get()).getBytes(Charset.forName("UTF-8")));
-			}
-		};
+	private Supplier<ByteBuffer> json(Supplier<Object> supplier) {
+		return () -> ByteBuffer.wrap(new GsonBuilder().setPrettyPrinting().create().toJson(supplier.get()).getBytes(Charset.forName("UTF-8")));
 	}
 	private void log(String name, String suffix, Supplier<ByteBuffer> supplier) {
 		Map<String, Supplier<ByteBuffer>> map = new HashMap<>();

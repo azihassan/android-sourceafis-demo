@@ -2,6 +2,7 @@
 package com.machinezoo.sourceafis;
 
 import java.util.*;
+import java8.util.Objects;
 
 class ReversedList<T> implements List<T> {
 	private final List<T> inner;
@@ -37,7 +38,7 @@ class ReversedList<T> implements List<T> {
 		if (size() != other.size())
 			return false;
 		for (int i = 0; i < size(); ++i)
-			if (!java8.util.Objects.equals(get(i), other.get(i)))
+			if (!Objects.equals(get(i), other.get(i)))
 				return false;
 		return true;
 	}
@@ -112,7 +113,7 @@ class ReversedList<T> implements List<T> {
 		for (int i = 0; i < size(); ++i) {
 			if (i > 0)
 				s.append(", ");
-			s.append(java8.util.Objects.toString(get(i)));
+			s.append(Objects.toString(get(i)));
 		}
 		s.append("]");
 		return s.toString();

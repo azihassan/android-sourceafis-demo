@@ -1,11 +1,12 @@
 // Part of SourceAFIS: https://sourceafis.machinezoo.com
 package com.machinezoo.sourceafis;
 
-import java8.util.*;
 import java.util.*;
+import java8.util.Optional;
 import javax.imageio.*;
 import com.google.gson.*;
-import java8.util.Optional;
+
+import java8.util.stream.StreamSupport;
 
 /**
  * Biometric description of a fingerprint suitable for efficient matching.
@@ -39,8 +40,7 @@ public class FingerprintTemplate {
 	/**
 	 * Instantiate an empty fingerprint template.
 	 * Empty template represents fingerprint with no features that does not match any other fingerprint (not even itself).
-	 * You can then call one of the methods
-	 * {@link #create(byte[])}, {@link #deserialize(String)}, or {@link #convert(byte[])}
+	 * You can then call {@link #create(byte[])} or {@link #deserialize(String)}
 	 * to actually fill the template with useful biometric data.
 	 */
 	public FingerprintTemplate() {
@@ -77,13 +77,19 @@ public class FingerprintTemplate {
 	}
 	/**
 	 * Create fingerprint template from fingerprint image.
-	 * Image must contain black fingerprint on white background at the DPI specified by calling {@link #dpi(double)}.
-	 * All image formats supported by Java's {ImageIO} are accepted, for example JPEG, PNG, or BMP,
+	 * The image must contain black fingerprint on white background at the DPI specified by calling {@link #dpi(double)}.
+	 * <p>
+	 * The image may be in any format commonly used to store fingerprint images, including PNG, JPEG, BMP, TIFF, or WSQ.
+	 * SourceAFIS will try to decode the image using Java's ImageIO (PNG, JPEG, BMP),
+	 * <a href="https://commons.apache.org/proper/commons-imaging/">Sanselan</a> library (TIFF),
+	 * <a href="https://github.com/kareez/jnbis">JNBIS</a> library (WSQ), and Android's
+	 * <a href="https://developer.android.com/reference/android/graphics/Bitmap">Bitmap</a> class (PNG, JPEG, BMP) in this order.
+	 * Note that these libraries might not support all versions and variations of the mentioned formats.
 	 * <p>
 	 * This method replaces any previously added biometric data in this template.
 	 * 
 	 * @param image
-	 *            fingerprint image in {ImageIO}-supported format
+	 *            fingerprint image in ImageIO-supported format
 	 * @return {@code this} (fluent method)
 	 * 
 	 * @see #dpi(double)
@@ -143,38 +149,21 @@ public class FingerprintTemplate {
 		return new Gson().toJson(new JsonTemplate(current.size, current.minutiae));
 	}
 	/**
-	 * Import ISO 19794-2 fingerprint template from another fingerprint recognition system.
-	 * This method can import biometric data from ISO 19794-2 templates,
-	 * which carry fingerprint features (endings and bifurcations) without the original image.
+	 * Import ANSI INCITS 378 or ISO 19794-2 fingerprint template from another fingerprint recognition system.
+	 * This method is deprecated. Use {@link FingerprintCompatibility#convert(byte[])} instead.
 	 * <p>
 	 * This method replaces any previously added biometric data in this template.
-	 * <p>
-	 * This method is written for ISO 19794-2:2005, but it should be able to handle ISO 19794-2:2011 templates.
-	 * If you believe you have a conforming template, but this method doesn't accept it, mail the template in for analysis.
-	 * No other fingerprint template formats are currently supported.
-	 * <p>
-	 * Note that the use of ISO 19794-2 templates is strongly discouraged
-	 * and support for the format might be removed in future releases.
-	 * This is because ISO is very unfriendly to opensource developers,
-	 * Its "standards" are only available for a high fee and with no redistribution rights.
-	 * There is only one truly open and widely used fingerprint exchange format: fingerprint images.
-	 * Application developers are encouraged to collect, store, and transfer fingerprints as images.
-	 * Besides compatibility and simplicity this brings,
-	 * use of images allows SourceAFIS to co-tune its feature extractor and matcher for higher accuracy.
 	 * 
-	 * @param iso
-	 *            ISO 19794-2 template to import
+	 * @param template
+	 *            foreign template to import
 	 * @return {@code this} (fluent method)
 	 * 
 	 * @see #create(byte[])
 	 * @see #deserialize(String)
 	 * @see #serialize()
 	 */
-	public FingerprintTemplate convert(byte[] iso) {
-		TemplateBuilder builder = new TemplateBuilder();
-		builder.transparency = transparency;
-		builder.convert(iso);
-		immutable = new ImmutableTemplate(builder);
+	@Deprecated public FingerprintTemplate convert(byte[] template) {
+		immutable = FingerprintCompatibility.convert(template).immutable;
 		return this;
 	}
 }
